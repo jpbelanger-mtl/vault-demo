@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: consul
+  labels:
+    ad-app: consul
+spec:
+  type: NodePort
+  selector:
+    ad-app: consul
+  ports:
+    - name: consul
+      port: 8500
+      nodePort: 30500
+
+---
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: consul
+  labels:
+    ad-app: consul
+spec:
+  replicas: 1
+  selector:
+    ad-app: consul
+  template:
+    metadata:
+      labels:
+        ad-app: consul
+    spec:
+      containers:
+      - name: consul
+        image: consul
+        command: ["consul"]
+        args: ["agent", "-server", "-bootstrap", "-bind=0.0.0.0", "-client=0.0.0.0", "-ui", "-data-dir", "/var/lib/consul"]
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8500
+          name: consul-api
+        livenessProbe:
+          httpGet:
+            path: /v1/health/state/any
+            port: 8500
+            scheme: HTTP
+          initialDelaySeconds: 300 # spring+flyway application takes time to boot...
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: consul-storage
+          mountPath: /var/lib/consul
+      volumes:
+      - name: consul-storage
+        emptyDir: {}

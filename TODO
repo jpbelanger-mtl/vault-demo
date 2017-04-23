@@ -1,0 +1,34 @@
+TODO
+
+---
+
+Update the vault initialization tool to use keybase keys directly instead of storing them in consul
+https://github.com/AppDirect/docker-infrastructure/blob/master/vault/vault-init.go
+
+use https://keybase.io/docs/api/1.0/call/user/pgp_keys.asc
+
+https://www.vaultproject.io/docs/concepts/pgp-gpg-keybase.html
+fetch email with https://keybase.io/docs/api/1.0/user_objects
+---
+
+Add influx stats collection for vault and consul
+
+https://github.com/influxdata/telegraf/issues/2138
+
+---
+
+Create a simple LDAP
+https://github.com/osixia/docker-openldap
+
+---
+
+Enable 2FA wit Duo
+
+---
+
+Play with automated secret assignment with kube
+
+https://github.com/kelseyhightower/vault-controller
+
+---
+

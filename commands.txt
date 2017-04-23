@@ -1,0 +1,6 @@
+configure vault
+
+export VAULT_ADDR='http://192.168.99.100:30200'
+
+vault status
+
