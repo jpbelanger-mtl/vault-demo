@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  labels:
+    ad-app: vault
+spec:
+  type: NodePort
+  selector:
+    ad-app: vault
+  ports:
+    - name: vault
+      port: 8200
+      nodePort: 30200
+
+---
+
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: vault
+  labels:
+    ad-app: vault
+spec:
+  replicas: 1
+  selector:
+    ad-app: vault
+  template:
+    metadata:
+      labels:
+        ad-app: vault
+    spec:
+      containers:
+      - name: vault
+        image: vault
+        args: ["server", "-log-level=debug"]
+        imagePullPolicy: Always
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
+        env:
+          - name: VAULT_LOCAL_CONFIG
+            valueFrom:
+              configMapKeyRef:
+                name: vault
+                key: config
+        ports:
+        - containerPort: 8200
+          name: vault-api
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault
+data:
+  config: |-
+    {  
+       "listener":{
+         "tcp":{
+           "tls_disable":"true",
+           "address":"0.0.0.0:8200"
+         }
+       },
+       "backend":{  
+          "consul":{  
+             "disable_clustering":"true",
+             "address":"consul:8500",
+             "path":"vault"
+          }
+       }
+    }
