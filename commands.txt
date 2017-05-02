@@ -1,0 +1,65 @@
+----
+To tell vault to connect to your minikube instance:
+export VAULT_ADDR=http://`minikube ip`:30200
+vault status
+
+---- 
+
+Initializing the vault
+
+in the https://github.com/jpbelanger-mtl/vault-init github clone folder
+go run vault-init.go -smtpFrom jp.belanger@gmail.com -keybase keybase:jpbelanger,keybase:jpbelanger,keybase:jpbelanger -vaultURL http://`minikube ip`:30200 -secretShares 3 -secretThreshold 3
+
+SAVE your root token ;) -> xxxxxx
+
+----
+
+Unseal the vault
+
+if using the vault-init, check you email (probably spam folder) and follow the command
+
+echo "" | xxd -r -p | gpg
+
+after unsealing you check validate the status:
+vault status
+
+----
+
+Mount a simple user/password backend
+
+vault auth-enable userpass
+vault write auth/userpass/users/vault-demo password=vault4u policies=admins
+
+enable 2FA on userpwd backend
+vault write auth/userpass/mfa_config type=duo
+vault write auth/userpass/duo/access host=api-e6360ac6.duosecurity.com ikey=<You DUO KEY> skey=<YOU DUO SECRET KEY>
+
+Try to login with that user to get a token
+vault auth -method=userpass username=vault-demo password=vault4u
+
+----
+
+vault mount mysql
+vault write mysql/config/connection connection_url="root:password@tcp(mysql:3306)/"
+vault write mysql/roles/readonly sql="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';"
+vault read mysql/creds/readonly
+
+mysql -h `minikube ip` --port 30306 -u read-root-xxxx -p
+
+---
+
+validating revoke
+
+vault revoke <lease id>
+mysql -h `minikube ip` --port 30306 -u read-root-xxxx -p
+
+
+----
+
+Response wrapping (cubbyhole)
+
+vault read -wrap-ttl=120 mysql/creds/readonly
+vault unwrap xxx
+
+
+If you change the TTL to something like 1s... You will see in the vault logs that vault will revoke the access after the expiration time. Leaving no trace of an used credential.
