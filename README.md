@@ -1,6 +1,10 @@
 # vault-demo
 
-##Requirements
+## Link to the slides
+
+https://docs.google.com/presentation/d/1x0FbDpy-udIWgZojkpYYxXGRw5E7VXK7BicbbfGQ5DY
+
+## Requirements
 
 - if using the vault-init tool, you need a smtp server. (I used a local postfix docker image in relay mode)
 - minikube
