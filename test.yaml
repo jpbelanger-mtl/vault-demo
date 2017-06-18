@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: vault-demo-injection
+    command: ['/wrapper/k8spoddecorator', 'vault-demo-injection']
+    volumeMounts:
+    - mountPath: /wrapper
+      name: wrapper-volume
+  initContainers:
+  - name: init-myservice
+    image: wrapper-container:0.0.1-SNAPSHOT
+    command: ['cp', '-c', 'echo booting; sleep 2;']
+    volumeMounts:
+    - mountPath: /wrapper
+      name: wrapper-volume
+volumes:
+  - name: wrapper-volume
+    emptyDir: {}

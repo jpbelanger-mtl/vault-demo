@@ -48,7 +48,6 @@ spec:
         ports:
         - containerPort: 8200
           name: vault-api
-
 ---
 
 apiVersion: v1

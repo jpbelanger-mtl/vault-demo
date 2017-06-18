@@ -34,7 +34,7 @@ spec:
       - name: consul
         image: consul
         command: ["consul"]
-        args: ["agent", "-server", "-bootstrap", "-bind=0.0.0.0", "-client=0.0.0.0", "-ui", "-data-dir", "/var/lib/consul"]
+        args: ["agent", "-server", "-bootstrap", "-bind=0.0.0.0", "-client=0.0.0.0", "-ui", "-data-dir", "/var/lib/consul", "-config-file", "/config/consul.conf"]
         imagePullPolicy: Always
         ports:
         - containerPort: 8500
@@ -49,6 +49,25 @@ spec:
         volumeMounts:
         - name: consul-storage
           mountPath: /var/lib/consul
+        - name: consul-config
+          mountPath: /config
       volumes:
       - name: consul-storage
         emptyDir: {}
+      - name: consul-config
+        configMap: 
+          name: consul
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: consul
+data:
+  consul.conf: |-
+    {  
+       "acl_datacenter": "dc1",
+       "acl_master_token": "773a3b77-4bfa-4fe3-b643-52f6f6a4af3c",
+       "acl_default_policy": "deny"
+    }

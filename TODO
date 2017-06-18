@@ -19,3 +19,37 @@ https://github.com/kelseyhightower/vault-controller
 
 ---
 
+cd1cfd76-1b16-1c3e-d019-001eb351403a
+
+---
+
+export K8SPODDECORATOR_VAULTSECRETPATH=/opt/dev/workspace/vault-demo/vault.token
+#export K8SPODDECORATOR_VAULTHOST=http://192.168.64.10:30200
+export K8SPODDECORATOR_APPLICATIONNAME=vault-demo-injection
+
+export VAULT_ADDR=http://192.168.64.10:30200
+export CONSUL_HTTP_ADDR=192.168.64.10:30500
+
+---
+
+configure consul backen
+
+
+
+vault mount consul
+
+vault write consul/config/access address=consul:8500 token=773a3b77-4bfa-4fe3-b643-52f6f6a4af3c
+POLICY='key "" { policy = "read" }'
+echo $POLICY | base64 | vault write consul/roles/readonly policy=- lease=1h
+
+vault mount database
+vault write database/config/mysql plugin_name=mysql-database-plugin allowed_roles="readonly" connection_url="root:password@tcp(mysql:3306)/"
+vault write database/roles/readonly db_name=mysql default_ttl="1h" max_ttl="24h" creation_statements="CREATE USER '{{name}}'@'%' IDENTIFIED BY '{{password}}';GRANT SELECT ON *.* TO '{{name}}'@'%';"
+
+vault write secret/foo bar=foo foo=bar ttl=1h
+
+cat /opt/dev/workspace/vault-demo/examples/consul/kube-pod-decorator.yaml | consul kv put -token=773a3b77-4bfa-4fe3-b643-52f6f6a4af3c config/kube-pod-decorator/vault-demo-injection/config -
+
+cat /opt/dev/workspace/vault-demo/examples/consul/files/example_config.yaml | consul kv put -token=773a3b77-4bfa-4fe3-b643-52f6f6a4af3c config/kube-pod-decorator/vault-demo-injection/files/example_config.yaml -
+
+cat /opt/dev/workspace/vault-demo/examples/consul/templates/application.yaml | consul kv put -token=773a3b77-4bfa-4fe3-b643-52f6f6a4af3c config/kube-pod-decorator/vault-demo-injection/templates/application.yaml -

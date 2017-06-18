@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
       - name: vault
-        image: vault
+        image: vault:0.7.3
         imagePullPolicy: Always
         securityContext:
           capabilities:
@@ -62,12 +62,12 @@ metadata:
   name: vault
 data:
   config: |-
-    {  
-       "backend":{  
-          "consul":{  
+    {
+       "backend":{
+          "consul":{
              "disable_clustering":"true",
              "address":"consul:8500",
-             "path":"vault"
+             "token":"773a3b77-4bfa-4fe3-b643-52f6f6a4af3c"
           }
        }
     }
