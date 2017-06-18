@@ -43,5 +43,5 @@ vault:
     path: secret/foo
 consul:
   - name: myConsulValue
-    path: config/cluster_info
+    path: config/cluster-info
     type: json

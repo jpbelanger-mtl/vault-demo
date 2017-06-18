@@ -50,6 +50,8 @@ vault write secret/foo bar=foo foo=bar ttl=1h
 
 cat /opt/dev/workspace/vault-demo/examples/consul/kube-pod-decorator.yaml | consul kv put -token=773a3b77-4bfa-4fe3-b643-52f6f6a4af3c config/kube-pod-decorator/vault-demo-injection/config -
 
+cat /opt/dev/workspace/vault-demo/examples/consul/cluster-info.json | consul kv put -token=773a3b77-4bfa-4fe3-b643-52f6f6a4af3c config/cluster-info -
+
 cat /opt/dev/workspace/vault-demo/examples/consul/files/example_config.yaml | consul kv put -token=773a3b77-4bfa-4fe3-b643-52f6f6a4af3c config/kube-pod-decorator/vault-demo-injection/files/example_config.yaml -
 
 cat /opt/dev/workspace/vault-demo/examples/consul/templates/application.yaml | consul kv put -token=773a3b77-4bfa-4fe3-b643-52f6f6a4af3c config/kube-pod-decorator/vault-demo-injection/templates/application.yaml -
