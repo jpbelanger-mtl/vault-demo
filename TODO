@@ -19,21 +19,24 @@ https://github.com/kelseyhightower/vault-controller
 
 ---
 
-cd1cfd76-1b16-1c3e-d019-001eb351403a
+bf4908c7-f183-be1f-a240-2839394c0abb
 
 ---
 
 export K8SPODDECORATOR_VAULTSECRETPATH=/opt/dev/workspace/vault-demo/vault.token
-#export K8SPODDECORATOR_VAULTHOST=http://192.168.64.10:30200
 export K8SPODDECORATOR_APPLICATIONNAME=vault-demo-injection
 
-export VAULT_ADDR=http://192.168.64.10:30200
-export CONSUL_HTTP_ADDR=192.168.64.10:30500
+export VAULT_ADDR=http://`minikube ip`:30200
+export CONSUL_HTTP_ADDR=`minikube ip`:30500
+
+---
+
+vault auth
 
 ---
 
 configure consul backen
-
+-----------------------
 
 
 vault mount consul
@@ -55,3 +58,14 @@ cat /opt/dev/workspace/vault-demo/examples/consul/cluster-info.json | consul kv 
 cat /opt/dev/workspace/vault-demo/examples/consul/files/example_config.yaml | consul kv put -token=773a3b77-4bfa-4fe3-b643-52f6f6a4af3c config/kube-pod-decorator/vault-demo-injection/files/example_config.yaml -
 
 cat /opt/dev/workspace/vault-demo/examples/consul/templates/application.yaml | consul kv put -token=773a3b77-4bfa-4fe3-b643-52f6f6a4af3c config/kube-pod-decorator/vault-demo-injection/templates/application.yaml -
+
+vault policy-write vault-demo-injection /opt/dev/workspace/vault-demo/examples/demo-policy.hcl
+
+vault token-create -display-name="demo" -ttl="1h" -renewable=true -policy="vault-demo-injection" -id=4a9afb73-2125-d5fe-e05d-831f33e00f10
+
+---
+
+
+
+---
+

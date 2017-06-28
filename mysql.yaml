@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: mysql
   labels:
-    ad-app: mysql
+    app: mysql
 spec:
   type: NodePort
   selector:
-    ad-app: mysql
+    app: mysql
   ports:
     - name: mysql
       port: 3306
@@ -16,26 +16,18 @@ spec:
 ---
 
 apiVersion: v1
-kind: ReplicationController
+kind: Pod
 metadata:
   name: mysql
   labels:
-    ad-app: mysql
+    app: mysql
 spec:
-  replicas: 1
-  selector:
-    ad-app: mysql
-  template:
-    metadata:
-      labels:
-        ad-app: mysql
-    spec:
-      containers:
-      - name: mysql
-        image: mysql
-        env:
-          - name: MYSQL_ROOT_PASSWORD
-            value: password
-        ports:
-        - containerPort: 3306
-          name: mysql
+  containers:
+  - name: mysql
+    image: mysql
+    env:
+      - name: MYSQL_ROOT_PASSWORD
+        value: password
+    ports:
+    - containerPort: 3306
+      name: mysql

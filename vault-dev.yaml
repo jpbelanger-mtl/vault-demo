@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: vault
   labels:
-    ad-app: vault
+    app: vault
 spec:
   type: NodePort
   selector:
-    ad-app: vault
+    app: vault
   ports:
     - name: vault
       port: 8200
@@ -16,43 +16,39 @@ spec:
 ---
 
 apiVersion: v1
-kind: ReplicationController
+kind: Pod
 metadata:
   name: vault
   labels:
-    ad-app: vault
+    app: vault
 spec:
-  replicas: 1
-  selector:
-    ad-app: vault
-  template:
-    metadata:
-      labels:
-        ad-app: vault
-    spec:
-      containers:
-      - name: vault
-        image: vault:0.7.3
-        imagePullPolicy: Always
-        securityContext:
-          capabilities:
-            add:
-              - IPC_LOCK
-        env:
-          - name: VAULT_LOCAL_CONFIG
-            valueFrom:
-              configMapKeyRef:
-                name: vault
-                key: config
-        ports:
-        - containerPort: 8200
-          name: vault-api
-        livenessProbe:
-          httpGet:
-            path: /v1/sys/health?uninitcode=200&sealedcode=200&standbycode=200&standbyok
-            port: 8200
-            scheme: HTTP
-          timeoutSeconds: 5
+  containers:
+  - name: vault
+    image: vault:0.7.3
+    imagePullPolicy: Always
+    securityContext:
+      capabilities:
+        add:
+          - IPC_LOCK
+    env:
+      - name: VAULT_LOCAL_CONFIG
+        valueFrom:
+          configMapKeyRef:
+            name: vault
+            key: config
+    ports:
+    - containerPort: 8200
+      name: vault-api
+    livenessProbe:
+      httpGet:
+        path: /v1/sys/health?uninitcode=200&sealedcode=200&standbycode=200&standbyok
+        port: 8200
+        scheme: HTTP
+      timeoutSeconds: 5
+  initContainers:
+    - name: wait-consul
+      image: busybox
+      command: ['sh', '-c', 'until wget --timeout=1 http://consul:8500/v1/health/state/any; do echo waiting for consul; sleep 2; done;']
 
 ---
 
