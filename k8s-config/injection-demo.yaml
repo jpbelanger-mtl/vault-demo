@@ -30,4 +30,5 @@ spec:
       name: wrapper-volume
   volumes:
     - name: wrapper-volume
-      emptyDir: {}
+      emptyDir:
+        medium: "Memory"

@@ -25,6 +25,11 @@ spec:
   containers:
   - name: vault
     image: vault:0.7.3
+    args:
+      - "server"
+      - "-dev"
+      - "-log-level=debug"
+      - "-dev-root-token-id=mysimple-vault-root-token-secret"
     imagePullPolicy: Always
     securityContext:
       capabilities:
