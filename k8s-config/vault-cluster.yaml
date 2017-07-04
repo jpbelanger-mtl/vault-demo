@@ -16,38 +16,32 @@ spec:
 ---
 
 apiVersion: v1
-kind: ReplicationController
+kind: Pod
 metadata:
   name: vault
-  labels:
-    ad-app: vault
 spec:
-  replicas: 1
-  selector:
-    ad-app: vault
-  template:
-    metadata:
-      labels:
-        ad-app: vault
-    spec:
-      containers:
-      - name: vault
-        image: vault
-        args: ["server", "-log-level=debug"]
-        imagePullPolicy: Always
-        securityContext:
-          capabilities:
-            add:
-              - IPC_LOCK
-        env:
-          - name: VAULT_LOCAL_CONFIG
-            valueFrom:
-              configMapKeyRef:
-                name: vault
-                key: config
-        ports:
-        - containerPort: 8200
-          name: vault-api
+  containers:
+  - name: vault
+    image: vault
+    args: ["server", "-log-level=debug"]
+    imagePullPolicy: Always
+    securityContext:
+      capabilities:
+        add:
+          - IPC_LOCK
+    env:
+      - name: VAULT_LOCAL_CONFIG
+        valueFrom:
+          configMapKeyRef:
+            name: vault
+            key: config
+    ports:
+    - containerPort: 8200
+      name: vault-api
+  initContainers:
+    - name: init-myservice
+      image: busybox
+      command: ['sh', '-c', 'until curl http://consul:8500/v1/health/state/any; do echo waiting for consul; sleep 2; done;']
 
 ---
 

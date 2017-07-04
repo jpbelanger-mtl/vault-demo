@@ -1,0 +1,65 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: consul
+  labels:
+    app: consul
+spec:
+  type: NodePort
+  selector:
+    app: consul
+  ports:
+    - name: consul
+      port: 8500
+      nodePort: 30500
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: consul
+  labels:
+    app: consul
+spec:
+  containers:
+  - name: consul
+    image: consul
+    command: ["consul"]
+    args: ["agent", "-server", "-bootstrap", "-bind=0.0.0.0", "-client=0.0.0.0", "-ui", "-data-dir", "/var/lib/consul", "-config-file", "/config/consul.conf"]
+    imagePullPolicy: Always
+    ports:
+    - containerPort: 8500
+      name: consul-api
+    livenessProbe:
+      httpGet:
+        path: /v1/health/state/any
+        port: 8500
+        scheme: HTTP
+      initialDelaySeconds: 90
+      timeoutSeconds: 5
+    volumeMounts:
+    - name: consul-storage
+      mountPath: /var/lib/consul
+    - name: consul-config
+      mountPath: /config
+  volumes:
+  - name: consul-storage
+    emptyDir: {}
+  - name: consul-config
+    configMap: 
+      name: consul
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: consul
+data:
+  consul.conf: |-
+    {  
+       "acl_datacenter": "dc1",
+       "acl_master_token": "773a3b77-4bfa-4fe3-b643-52f6f6a4af3c",
+       "acl_default_policy": "deny"
+    }

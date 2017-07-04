@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+  labels:
+    app: myapp
+spec:
+  containers:
+  - name: myapp-container
+    image: vault-demo-injection:0.0.1
+    command: ['/tmp/kube-pod-decorator', '/app/vault-demo-injection']
+    env:
+      - name: VAULT_ADDR
+        value: http://vault:8200
+      - name: K8SPODDECORATOR_VAULTSECRETPATH
+        value: /tmp/vault.token
+      - name: K8SPODDECORATOR_APPLICATIONNAME
+        value: vault-demo-injection
+      - name: CONSUL_HTTP_ADDR
+        value: consul:8500
+    volumeMounts:
+    - mountPath: /tmp
+      name: wrapper-volume
+  initContainers:
+  - name: init-myservice
+    image: kube-pod-decorator:0.0.1
+    command: ['sh', '-c', 'cp /app/kube-pod-decorator /tmp && echo 4a9afb73-2125-d5fe-e05d-831f33e00f10 > /tmp/vault.token']
+    volumeMounts:
+    - mountPath: /tmp
+      name: wrapper-volume
+  volumes:
+    - name: wrapper-volume
+      emptyDir:
+        medium: "Memory"

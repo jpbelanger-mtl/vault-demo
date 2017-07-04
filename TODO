@@ -19,3 +19,5 @@ https://github.com/kelseyhightower/vault-controller
 
 ---
 
+export K8SPODDECORATOR_VAULTSECRETPATH=/opt/dev/workspace/vault-demo/vault.token
+export K8SPODDECORATOR_APPLICATIONNAME=vault-demo-injection

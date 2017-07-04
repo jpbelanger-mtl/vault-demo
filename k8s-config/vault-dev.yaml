@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vault
+  labels:
+    app: vault
+spec:
+  type: NodePort
+  selector:
+    app: vault
+  ports:
+    - name: vault
+      port: 8200
+      nodePort: 30200
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: vault
+  labels:
+    app: vault
+spec:
+  containers:
+  - name: vault
+    image: vault:0.7.3
+    args:
+      - "server"
+      - "-dev"
+      - "-log-level=debug"
+      - "-dev-root-token-id=mysimple-vault-root-token-secret"
+    imagePullPolicy: Always
+    securityContext:
+      capabilities:
+        add:
+          - IPC_LOCK
+    env:
+      - name: VAULT_LOCAL_CONFIG
+        valueFrom:
+          configMapKeyRef:
+            name: vault
+            key: config
+    ports:
+    - containerPort: 8200
+      name: vault-api
+    livenessProbe:
+      httpGet:
+        path: /v1/sys/health?uninitcode=200&sealedcode=200&standbycode=200&standbyok
+        port: 8200
+        scheme: HTTP
+      timeoutSeconds: 5
+  initContainers:
+    - name: wait-consul
+      image: busybox
+      command: ['sh', '-c', 'until wget --timeout=1 http://consul:8500/v1/health/state/any; do echo waiting for consul; sleep 2; done;']
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault
+data:
+  config: |-
+    {
+       "backend":{
+          "consul":{
+             "disable_clustering":"true",
+             "address":"consul:8500",
+             "token":"773a3b77-4bfa-4fe3-b643-52f6f6a4af3c"
+          }
+       }
+    }

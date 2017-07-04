@@ -1,0 +1,3 @@
+simple_key: simpe_value
+secret_key: {{ .DEMO_OTHER_GENERIC_SECRET }}
+environment: {{ .CLUSTER_NAME }}

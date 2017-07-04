@@ -1,0 +1,47 @@
+key: vault-demo-injection
+env:
+  - name: DEMO_GREETING
+    value: "Hello from the value in consul"
+  - name: DEMO_GENERIC_SECRET
+    valueFrom:
+      secretKeyRef:
+        name: myGenericSecret
+        key: foo
+  - name: DEMO_MYSQL_USERNAME
+    valueFrom: 
+      secretKeyRef:
+        name: myDBSecret
+        key: username
+  - name: DEMO_MYSQL_PASSWORD
+    valueFrom: 
+      secretKeyRef:
+        name: myDBSecret
+        key: password
+files:
+  - name: example_config.yaml
+    destination: /tmp/example_config.yaml
+templates:
+  - name: application.yaml
+    destination: /tmp/application.yaml
+    env:
+      - name: DEMO_OTHER_GENERIC_SECRET
+        valueFrom:
+          secretKeyRef:
+            name: myGenericSecret
+            key: bar
+      - name: CLUSTER_NAME
+        valueFrom:
+          consulKeyRef:
+            name: myConsulValue
+            key: name
+vault:
+  - name: myDBSecret
+    type: database
+    path: database/creds/readonly
+  - name: myGenericSecret
+    type: generic
+    path: secret/foo
+consul:
+  - name: myConsulValue
+    path: config/cluster-info
+    type: json
