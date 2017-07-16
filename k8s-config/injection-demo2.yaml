@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: myapp-pod
+  name: myapp-pod2
   labels:
-    app: myapp
+    app: myapp2
 spec:
   containers:
   - name: myapp-container
@@ -24,7 +24,7 @@ spec:
   initContainers:
   - name: init-myservice
     image: jpbelanger/kube-pod-decorator:1.0.0
-    command: ['sh', '-c', 'cp /app/kube-pod-decorator/kube-pod-decorator /tmp && echo 4a9afb73-2125-d5fe-e05d-831f33e00f10 > /tmp/vault.token']
+    command: ['sh', '-c', 'cp /app/kube-pod-decorator/kube-pod-decorator /tmp && echo 4a9afb73-2125-d5fe-e05d-831f33e00f11 > /tmp/vault.token']
     volumeMounts:
     - mountPath: /tmp
       name: wrapper-volume
