@@ -1,7 +1,7 @@
 key: vault-demo-injection
 env:
   - name: DEMO_GREETING
-    value: "Hello from the value in consul"
+    value: "Hello from the value in consul (${CONSUL_HTTP_ADDR})"
   - name: DEMO_GENERIC_SECRET
     valueFrom:
       secretKeyRef:
